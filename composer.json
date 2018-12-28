@@ -1,0 +1,7 @@
+{
+  "name": "rvsitebuildersetup",
+  "require": {
+    "guzzlehttp/guzzle": "^6.3.3",
+    "splitbrain/php-archive": "^1.1"
+  }
+}
