@@ -8,7 +8,9 @@ $headers                = apache_request_headers();
 $action                 = (isset($_GET['action'])) ? $_GET['action'] : '';
 $responsetype           = (isset($headers['Accept'])) ? $headers['Accept'] : 'application/json';
 $rvsb_installing_token  = (isset($headers['Rvsb-Installing-Token'])) ? $headers['Rvsb-Installing-Token'] : '';
-
+$homeuser               = (isset($_GET['homeuser'])) ? $_GET['homeuser'] : '';
+$domainname             = (isset($_GET['domainname'])) ? $_GET['domainname'] : '';
+$publicpath             = (isset($_GET['public_path'])) ? $_GET['public_path'] : '';
 
 /*
  * MAIN
@@ -33,6 +35,10 @@ session_start();
 $_SESSION['responsetype'] = $responsetype;
 $_SESSION['action'] = $action;
 $_SESSION['rvsb_installing_token'] = $rvsb_installing_token;
+$_SESSION['homeuser'] = $homeuser;
+$_SESSION['domainname'] = $domainname;
+$_SESSION['docroot'] = $docroot;
+$_SESSION['public_path'] = $publicpath;
 if($firstreg){
     $_SESSION['firstreg'] = true;
 }
