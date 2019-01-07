@@ -11,6 +11,13 @@ $rvsb_installing_token  = (isset($headers['Rvsb-Installing-Token'])) ? $headers[
 $homeuser               = (isset($_GET['homeuser'])) ? $_GET['homeuser'] : '';
 $domainname             = (isset($_GET['domainname'])) ? $_GET['domainname'] : '';
 $publicpath             = (isset($_GET['public_path'])) ? $_GET['public_path'] : '';
+$dbhost             = (isset($_GET['dbhost'])) ? $_GET['dbhost'] : '';
+$dbname            = (isset($_GET['dbname'])) ? $_GET['dbname'] : '';
+$dbuser             = (isset($_GET['dbuser'])) ? $_GET['dbuser'] : '';
+$dbpassword             = (isset($_GET['dbpassword'])) ? $_GET['dbpassword'] : '';
+$ftpaccount             = (isset($_GET['ftpaccount'])) ? $_GET['ftpaccount'] : '';
+$ftppassword             = (isset($_GET['ftppassword'])) ? $_GET['ftppassword'] : '';
+
 
 /*
  * MAIN
@@ -39,6 +46,13 @@ $_SESSION['homeuser'] = $homeuser;
 $_SESSION['domainname'] = $domainname;
 $_SESSION['docroot'] = $docroot;
 $_SESSION['public_path'] = $publicpath;
+$_SESSION['dbhost'] = $dbhost;
+$_SESSION['dbname'] = $dbname;
+$_SESSION['dbuser'] = $dbuser;
+$_SESSION['dbpassword'] = $dbpassword;
+$_SESSION['ftpaccount'] = $ftpaccount;
+$_SESSION['ftppassword'] = $ftppassword;
+
 if($firstreg){
     $_SESSION['firstreg'] = true;
 }
