@@ -2,7 +2,7 @@
 
 require 'vendor/autoload.php';
 use GuzzleHttp\Client;
-
+use splitbrain\PHPArchive\Tar;
 
 $headers                = apache_request_headers();
 $action                 = (isset($_GET['action'])) ? $_GET['action'] : '';
@@ -31,10 +31,18 @@ if($rvsb_installing_token == '' && ! file_exists(dirname(__FILE__).'/.Rvsb-Insta
 //if not file setupapiserver
 //TODO exists and sign version with version1.rvsitebuilder.com
 if (! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
-    //TODO
-    //download setupapiserver 
-    //extrack
-    //chmod chperm
+    $downloadreal = do_download('GET' , 'http://files.mirror1.rvsitebuilder.com/download/rvsitebuilderinstaller/install' , dirname(__FILE__).'/install.tar.gz');
+    if(! $downloadreal){
+        header('Content-type: application/json');
+        echo json_encode( ['status' => false , 'message' => 'Can not download rvsitebuilder installer.'] );
+        exit;
+    }
+    $extractreal  = do_extract(dirname(__FILE__).'/install.tar.gz',dirname(__FILE__).'/');
+    if(! $extractreal) {
+        header('Content-type: application/json');
+        echo json_encode( ['status' => false , 'message' => 'Can not extract rvsitebuilder installer.'] );
+        exit;
+    }
 } 
 
 //set session
@@ -74,6 +82,27 @@ function genTokenAndSaveFile() {
     }
     file_put_contents(dirname(__FILE__).'/.Rvsb-Installing-Token', $randstring);
     return $randstring;
+}
+
+function do_download($type, $url, $sink) {
+    $client = new Client([
+        'curl'            => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
+        'allow_redirects' => false,
+        'cookies'         => true,
+        'verify'          => false
+    ]);
+    $client->request($type, $url, ['sink' => $sink]);
+    if(file_exists($sink)) {
+        return true;
+    }
+    return false;
+}
+
+function do_extract($file,$path) {
+    $tar = new Tar();
+    $tar->open($file);
+    $tar->extract($path);
+    return true;
 }
 
 
