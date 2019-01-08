@@ -17,7 +17,7 @@ $dbuser             = (isset($_GET['dbuser'])) ? $_GET['dbuser'] : '';
 $dbpassword             = (isset($_GET['dbpassword'])) ? $_GET['dbpassword'] : '';
 $ftpaccount             = (isset($_GET['ftpaccount'])) ? $_GET['ftpaccount'] : '';
 $ftppassword             = (isset($_GET['ftppassword'])) ? $_GET['ftppassword'] : '';
-
+$appname                = (isset($_GET['appname'])) ? $_GET['appname'] : 'RVsitebuilder';
 
 /*
  * MAIN
@@ -52,7 +52,7 @@ $_SESSION['dbuser'] = $dbuser;
 $_SESSION['dbpassword'] = $dbpassword;
 $_SESSION['ftpaccount'] = $ftpaccount;
 $_SESSION['ftppassword'] = $ftppassword;
-
+$_SESSION['appname'] = $appname;
 if($firstreg){
     $_SESSION['firstreg'] = true;
 }
