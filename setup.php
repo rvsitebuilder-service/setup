@@ -31,6 +31,13 @@ if($rvsb_installing_token == '' && ! file_exists(dirname(__FILE__).'/.Rvsb-Insta
 //if not file setupapiserver
 //TODO exists and sign version with version1.rvsitebuilder.com
 if (! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
+    
+    if(ini_get('allow_url_fopen') != $iniconfig['allow_url_fopen']){
+        header('Content-type: application/json');
+        echo json_encode( ['status' => false , 'message' => 'Error php.ini, Must set allow_url_fopen=ON'] );
+        exit;
+    }
+    
     $downloadreal = do_download('GET' , 'http://files.mirror1.rvsitebuilder.com/download/rvsitebuilderinstaller/install' , dirname(__FILE__).'/install.tar.gz');
     if(! $downloadreal){
         header('Content-type: application/json');
