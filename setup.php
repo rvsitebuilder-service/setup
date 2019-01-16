@@ -32,11 +32,7 @@ if($rvsb_installing_token == '' && ! file_exists(dirname(__FILE__).'/.Rvsb-Insta
 //TODO exists and sign version with version1.rvsitebuilder.com
 if (! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
     
-<<<<<<< HEAD
     if(ini_get('allow_url_fopen') != 1){
-=======
-    if(ini_get('allow_url_fopen') != $iniconfig['allow_url_fopen']){
->>>>>>> branch 'develop' of https://gitlab.rvglobalsoft.netway.pro/rvglobalsoft/rvsitebuildercms-setup.git
         header('Content-type: application/json');
         echo json_encode( ['status' => false , 'message' => 'Error php.ini, Must set allow_url_fopen=ON'] );
         exit;
