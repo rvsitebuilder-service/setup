@@ -17,7 +17,10 @@ $dbuser             = (isset($_GET['dbuser'])) ? $_GET['dbuser'] : '';
 $dbpassword             = (isset($_GET['dbpassword'])) ? $_GET['dbpassword'] : '';
 $ftpaccount             = (isset($_GET['ftpaccount'])) ? $_GET['ftpaccount'] : '';
 $ftppassword             = (isset($_GET['ftppassword'])) ? $_GET['ftppassword'] : '';
+$ftpserver             = (isset($_GET['ftpserver'])) ? $_GET['ftpserver'] : '';
+$ftpport             = (isset($_GET['ftpport'])) ? $_GET['ftpport'] : '';
 $appname                = (isset($_GET['appname'])) ? $_GET['appname'] : 'RVsitebuilder';
+
 
 /*
  * MAIN
@@ -37,8 +40,9 @@ if (! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
         echo json_encode( ['status' => false , 'message' => 'Error php.ini, Must set allow_url_fopen=ON'] );
         exit;
     }
-    
-    $downloadreal = do_download('GET' , 'http://files.mirror1.rvsitebuilder.com/download/rvsitebuilderinstaller/install' , dirname(__FILE__).'/install.tar.gz');
+    $downloadurl = (check_getlatestversion()) ? 'http://files.mirror1.rvsitebuilder.com/download/rvsitebuilderinstaller/install/tier/latest'
+                                              : 'http://files.mirror1.rvsitebuilder.com/download/rvsitebuilderinstaller/install' ;
+    $downloadreal = do_download('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz');
     if(! $downloadreal){
         header('Content-type: application/json');
         echo json_encode( ['status' => false , 'message' => 'Can not download rvsitebuilder installer.'] );
@@ -67,6 +71,8 @@ $_SESSION['dbuser'] = $dbuser;
 $_SESSION['dbpassword'] = $dbpassword;
 $_SESSION['ftpaccount'] = $ftpaccount;
 $_SESSION['ftppassword'] = $ftppassword;
+$_SESSION['ftpserver'] = $ftpserver;
+$_SESSION['ftpport'] = $ftpport;
 $_SESSION['appname'] = $appname;
 if($firstreg){
     $_SESSION['firstreg'] = true;
@@ -110,6 +116,13 @@ function do_extract($file,$path) {
     $tar->open($file);
     $tar->extract($path);
     return true;
+}
+
+function check_getlatestversion(){
+    if(file_exists($_SERVER['DOCUMENT_ROOT'].'/.getlastedversion')) {
+        return true;
+    }
+    return false;
 }
 
 
