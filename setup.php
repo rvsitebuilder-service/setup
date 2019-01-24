@@ -119,8 +119,7 @@ function do_extract($file,$path) {
 }
 
 function check_getlatestversion(){
-    $homepath_dir = posix_getpwuid(posix_getuid())['dir'];
-    if(file_exists($homepath_dir.'/.getlatestversion')) {
+    if(file_exists(dirname(__FILE__).'/.getlatestversion')) {
         return true;
     }
     return false;
