@@ -11,14 +11,14 @@ $rvsb_installing_token  = (isset($headers['Rvsb-Installing-Token'])) ? $headers[
 $homeuser               = (isset($_GET['homeuser'])) ? $_GET['homeuser'] : '';
 $domainname             = (isset($_GET['domainname'])) ? $_GET['domainname'] : '';
 $publicpath             = (isset($_GET['public_path'])) ? $_GET['public_path'] : '';
-$dbhost             = (isset($_GET['dbhost'])) ? $_GET['dbhost'] : '';
-$dbname            = (isset($_GET['dbname'])) ? $_GET['dbname'] : '';
-$dbuser             = (isset($_GET['dbuser'])) ? $_GET['dbuser'] : '';
+$dbhost                 = (isset($_GET['dbhost'])) ? $_GET['dbhost'] : '';
+$dbname                 = (isset($_GET['dbname'])) ? $_GET['dbname'] : '';
+$dbuser                 = (isset($_GET['dbuser'])) ? $_GET['dbuser'] : '';
 $dbpassword             = (isset($_GET['dbpassword'])) ? $_GET['dbpassword'] : '';
 $ftpaccount             = (isset($_GET['ftpaccount'])) ? $_GET['ftpaccount'] : '';
-$ftppassword             = (isset($_GET['ftppassword'])) ? $_GET['ftppassword'] : '';
-$ftpserver             = (isset($_GET['ftpserver'])) ? $_GET['ftpserver'] : '';
-$ftpport             = (isset($_GET['ftpport'])) ? $_GET['ftpport'] : '';
+$ftppassword            = (isset($_GET['ftppassword'])) ? $_GET['ftppassword'] : '';
+$ftpserver              = (isset($_GET['ftpserver'])) ? $_GET['ftpserver'] : '';
+$ftpport                = (isset($_GET['ftpport'])) ? $_GET['ftpport'] : '';
 $appname                = (isset($_GET['appname'])) ? $_GET['appname'] : 'RVsitebuilder';
 
 
@@ -32,7 +32,6 @@ if($rvsb_installing_token == '' && ! file_exists(dirname(__FILE__).'/.Rvsb-Insta
 }
 
 //if not file setupapiserver
-//TODO exists and sign version with version1.rvsitebuilder.com
 if (! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
     
     if(ini_get('allow_url_fopen') != 1){
@@ -118,7 +117,7 @@ function do_extract($file,$path) {
     return true;
 }
 
-function check_getlatestversion(){
+function check_getlatestversion (){
     if(file_exists(dirname(__FILE__).'/.getlatestversion')) {
         return true;
     }
