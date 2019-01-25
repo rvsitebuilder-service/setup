@@ -62,7 +62,6 @@ $_SESSION['action'] = $action;
 $_SESSION['rvsb_installing_token'] = $rvsb_installing_token;
 $_SESSION['homeuser'] = $homeuser;
 $_SESSION['domainname'] = $domainname;
-$_SESSION['docroot'] = $docroot;
 $_SESSION['public_path'] = $publicpath;
 $_SESSION['dbhost'] = $dbhost;
 $_SESSION['dbname'] = $dbname;
