@@ -26,6 +26,7 @@ $appname                = (isset($_GET['appname'])) ? $_GET['appname'] : 'RVsite
  * MAIN
  */
 //first request - generator token for first request
+$firstreg = false;
 if($rvsb_installing_token == '' && ! file_exists(dirname(__FILE__).'/.Rvsb-Installing-Token')) {
     $rvsb_installing_token = genTokenAndSaveFile();
     $firstreg = true;
@@ -72,9 +73,7 @@ $_SESSION['ftppassword'] = $ftppassword;
 $_SESSION['ftpserver'] = $ftpserver;
 $_SESSION['ftpport'] = $ftpport;
 $_SESSION['appname'] = $appname;
-if($firstreg){
-    $_SESSION['firstreg'] = true;
-}
+$_SESSION['firstreg'] = $firstreg;
 
 include('setupapiserver.php');
 
