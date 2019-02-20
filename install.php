@@ -66,12 +66,14 @@ die();
 /* Function */
 function getInstallerConfig() {
     //defaultconfig
-    $installerconfig = parse_ini_file(dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini');
+    $defconfig = parse_ini_file(dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini');
+    
     //overwrite installer config by user
+    $userconfig = [];
     if(file_exists(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini')) {
-        $installerconfig = parse_ini_file(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini');
+        $userconfig = parse_ini_file(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini');
     }
-    return $installerconfig;
+    return array_merge($defconfig,$userconfig);
 }
 function doDownload($type, $url, $sink) {
     $client = new Client([
