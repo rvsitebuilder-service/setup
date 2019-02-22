@@ -76,12 +76,12 @@ die();
 /* Function */
 function getInstallerConfig() {
     //defaultconfig
-    $defconfig = parse_ini_file(dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini');
+    $defconfig = parse_ini_file(dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini',true);
     
     //overwrite installer config by user
     $userconfig = [];
     if(file_exists(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini')) {
-        $userconfig = parse_ini_file(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini');
+        $userconfig = parse_ini_file(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini',true);
     }
     return array_merge($defconfig,$userconfig);
 }
