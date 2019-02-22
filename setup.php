@@ -33,11 +33,11 @@ if(ini_get('allow_url_fopen') != 1){
 if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
     //set download real-setup url
     $mirror =  (isset($installerconfig['mirror'])) ? $installerconfig['mirror'] : 'http://files.mirror1.rvsitebuilder.com';
-    if($installerconfig['getversion'] == 'latest') {
+    if($installerconfig['installer']['getversion'] == 'latest') {
         $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install/tier/latest';
     }
-    elseif(preg_match('/[0-9]+\.[0-9]+\.[0-9]+/',$installerconfig['getversion'])) {
-        $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install/version/'.$installerconfig['getversion'];
+    elseif(preg_match('/[0-9]+\.[0-9]+\.[0-9]+/',$installerconfig['installer']['getversion'])) {
+        $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install/version/'.$installerconfig['installer']['getversion'];
     }
     else{
         $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install';
@@ -125,5 +125,5 @@ function print_install_log($installlog , $msg = '') {
             );
     }
     return true;
-
+}
 ?>
