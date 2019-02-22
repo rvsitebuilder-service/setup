@@ -109,7 +109,7 @@ function print_debug_log($debug , $msg = '') {
     if($debug == true){
         file_put_contents(
             dirname(__FILE__).'install_log.txt',
-            'DEBUG LOG >>' .$msg.PHP_EOL ,
+            'DEBUG LOG >> ' .$msg.PHP_EOL ,
             FILE_APPEND | LOCK_EX
             );
     }
@@ -120,7 +120,7 @@ function print_install_log($installlog , $msg = '') {
     if($installlog == true){
         file_put_contents(
             dirname(__FILE__).'install_log.txt',
-            'INSTALL LOG >>' .$msg.PHP_EOL ,
+            'INSTALL LOG >> ' .$msg.PHP_EOL ,
             FILE_APPEND | LOCK_EX
             );
     }
