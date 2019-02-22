@@ -8,7 +8,7 @@ use splitbrain\PHPArchive\Tar;
 $installerconfig = getInstallerConfig();
 
 $headers = apache_request_headers();
-$installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'nocp';
+$installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'cpanel';
 print_debug_log($installerconfig['debug_log'],'Install type '.$installtype);
 
 //chk extension json load
@@ -108,7 +108,7 @@ function doExtract($file,$path) {
 function print_debug_log($debug , $msg = '') {
     if($debug == true){
         file_put_contents(
-            dirname(__FILE__).'install_log.txt',
+            dirname(__FILE__).'/install_log.txt',
             'DEBUG LOG >> ' .$msg.PHP_EOL ,
             FILE_APPEND | LOCK_EX
             );
@@ -119,7 +119,7 @@ function print_debug_log($debug , $msg = '') {
 function print_install_log($installlog , $msg = '') {
     if($installlog == true){
         file_put_contents(
-            dirname(__FILE__).'install_log.txt',
+            dirname(__FILE__).'/install_log.txt',
             'INSTALL LOG >> ' .$msg.PHP_EOL ,
             FILE_APPEND | LOCK_EX
             );
