@@ -8,7 +8,7 @@ use splitbrain\PHPArchive\Tar;
 $installerconfig = getInstallerConfig();
 
 $headers = apache_request_headers();
-$installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'cpanel';
+$installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'nocp';
 print_debug_log($installerconfig['debug_log'],'Install type '.$installtype);
 
 //chk extension json load
