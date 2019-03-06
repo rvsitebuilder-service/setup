@@ -130,7 +130,9 @@ function doDownload($type, $url, $sink, $rvlicensecode) {
 }
 
 function get_current_domain() {
-    return $_SERVER['SERVER_NAME'];
+    $domainname = $_SERVER['SERVER_NAME'];
+    $domainname = str_replace("www.","",$domainname);
+    return $domainname;
 }
 
 function get_client_ip() {
