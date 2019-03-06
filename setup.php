@@ -8,6 +8,7 @@ use splitbrain\PHPArchive\Tar;
 $installerconfig = getInstallerConfig();
 
 $headers = (function_exists('apache_request_headers') || is_callable('apache_request_headers'))  ? apache_request_headers() : rv_apache_request_headers();
+$headers = array_change_key_case($headers,CASE_UPPER);
 $installtype  = (isset($headers['INSTALLTYPE'])) ? $headers['INSTALLTYPE'] : 'nocp';
 print_debug_log($installerconfig['debug_log'],'Install type '.$installtype);
 $rvlicensecode = (isset($headers['RV-LICENSE-CODE'])) ? $headers['RV-LICENSE-CODE'] : '';
