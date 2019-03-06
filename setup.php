@@ -10,6 +10,8 @@ $installerconfig = getInstallerConfig();
 $headers = (function_exists('apache_request_headers') || is_callable('apache_request_headers'))  ? apache_request_headers() : rv_apache_request_headers();
 $installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'nocp';
 print_debug_log($installerconfig['debug_log'],'Install type '.$installtype);
+$rvlicensecode = (isset($headers['RV-License-Code'])) ? $headers['RV-License-Code'] : '';
+print_debug_log($installerconfig['debug_log'],'RV License Code '.$rvlicensecode);
 
 //chk extension json load
 if (!extension_loaded('json')) {
@@ -44,15 +46,15 @@ if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__
     }
     print_debug_log($installerconfig['debug_log'],'Download installer url '.$downloadurl);
     //download
-    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz');
-    if(! $downloadreal){
-        echo json_encode( ['status' => false , 'message' => 'Can not download rvsitebuilder installer.'] );
-        print_install_log($installerconfig['install_log'] , 'Can not download rvsitebuilder installer.');
+    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz',$rvlicensecode);
+    if($downloadreal['success'] == false){
+        echo json_encode( ['status' => false , 'message' => $downloadreal['message']] );
+        print_install_log($installerconfig['install_log'] , $downloadreal['message']);
         exit;
     }
     //extract
     $extractreal  = doExtract(dirname(__FILE__).'/install.tar.gz',dirname(__FILE__).'/');
-    if(! $extractreal) {
+    if($extractreal['success'] = false) {
         echo json_encode( ['status' => false , 'message' => 'Can not extract rvsitebuilder installer.'] );
         print_install_log($installerconfig['install_log'] , 'Can not extract rvsitebuilder installer.');
         exit;
@@ -85,24 +87,84 @@ function getInstallerConfig() {
     }
     return array_merge($defconfig,$userconfig);
 }
-function doDownload($type, $url, $sink) {
+
+function doDownload($type, $url, $sink, $rvlicensecode) {
+    $response = [
+        'message' => '',
+        'success' => false
+    ];
+   
     $client = new Client([
         'curl'            => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
         'allow_redirects' => false,
         'cookies'         => true,
         'verify'          => false
     ]);
-    $client->request($type, $url, ['sink' => $sink]);
-    if(file_exists($sink)) {
-        return true;
+    
+    $headers = [
+        /// Domain user
+        'RV-Referer' => get_current_domain(),
+        /// บอกให้ทำ GATracking
+        'Allow-GATracking' => 'true',
+        /// RVGlobalsoft Product
+        'RV-Product' => 'rvsitebuilder',
+        /// ทำ License-Code ดูตาม function เลย
+        'RV-License-Code' => $rvlicensecode,
+        /// Browser ของ user
+        'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
+        /// ส่ง IP ของ user ให้ด้วย เพราะที่ server เราจะเห็นแค่ IP ของ server ไม่ใช่ IP ของผู้ใช้งานจริงๆ
+        'RV-Forword-REMOTE-ADDR' => get_client_ip()
+    ];
+    
+    $res = $client->request($type, $url, ['headers' => $headers], ['sink' => $sink]);
+    
+    if($res->getHeaderLine('RV-DOWNLOAD-RESPONSE') != 'ok') {
+        $response['message'] = $res->getHeaderLine('RV-DOWNLOAD-RESPONSE-MESSAGE');
+    } else if(!file_exists($sink)) {
+        $response['message'] = 'Download Error ,file '.$sink.' not exists';
+    } else {
+        $response['success'] = true;
     }
-    return false;
+    
+    return $response;
 }
+
+function get_current_domain() {
+    return $_SERVER['SERVER_NAME'];
+}
+
+function get_client_ip() {
+    $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP']))
+    {    $ipaddress = $_SERVER['HTTP_CLIENT_IP']; }
+    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+    {    $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR']; }
+    else if(isset($_SERVER['HTTP_X_FORWARDED']))
+    {    $ipaddress = $_SERVER['HTTP_X_FORWARDED']; }
+    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+    {    $ipaddress = $_SERVER['HTTP_FORWARDED_FOR']; }
+    else if(isset($_SERVER['HTTP_FORWARDED']))
+    {    $ipaddress = $_SERVER['HTTP_FORWARDED']; }
+    else if(isset($_SERVER['REMOTE_ADDR']))
+    {    $ipaddress = $_SERVER['REMOTE_ADDR']; }
+    else
+    {    $ipaddress = 'UNKNOWN'; }
+    return $ipaddress;
+}
+
 function doExtract($file,$path) {
-    $tar = new Tar();
-    $tar->open($file);
-    $tar->extract($path);
-    return true;
+    $response['success'] = false;
+    $response['message'] = '';
+    try {
+        $tar = new Tar();
+        $tar->open($file);
+        $tar->extract($path);
+        $response['success'] = true;
+        return $response;
+    } catch (Exception $e) {
+        $response['message'] = $e->getMessage();
+        return $response;
+    }
 }
 
 function print_debug_log($debug , $msg = '') {
