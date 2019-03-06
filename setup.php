@@ -8,9 +8,9 @@ use splitbrain\PHPArchive\Tar;
 $installerconfig = getInstallerConfig();
 
 $headers = (function_exists('apache_request_headers') || is_callable('apache_request_headers'))  ? apache_request_headers() : rv_apache_request_headers();
-$installtype  = (isset($headers['Installtype'])) ? $headers['Installtype'] : 'nocp';
+$installtype  = (isset($headers['INSTALLTYPE'])) ? $headers['INSTALLTYPE'] : 'nocp';
 print_debug_log($installerconfig['debug_log'],'Install type '.$installtype);
-$rvlicensecode = (isset($headers['RV-License-Code'])) ? $headers['RV-License-Code'] : '';
+$rvlicensecode = (isset($headers['RV-LICENSE-CODE'])) ? $headers['RV-LICENSE-CODE'] : '';
 print_debug_log($installerconfig['debug_log'],'RV License Code '.$rvlicensecode);
 
 //chk extension json load
@@ -46,14 +46,14 @@ if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__
     }
     print_debug_log($installerconfig['debug_log'],'Download installer url '.$downloadurl);
     //download
-    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz',$rvlicensecode);
+    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz',$rvlicensecode,$installerconfig['debug_log']);
     if($downloadreal['success'] == false){
         echo json_encode( ['status' => false , 'message' => $downloadreal['message']] );
         print_install_log($installerconfig['install_log'] , $downloadreal['message']);
         exit;
     }
     //extract
-    $extractreal  = doExtract(dirname(__FILE__).'/install.tar.gz',dirname(__FILE__).'/');
+    $extractreal  = doExtract(dirname(__FILE__).'/install.tar.gz',dirname(__FILE__).'/',$installerconfig['debug_log']);
     if($extractreal['success'] = false) {
         echo json_encode( ['status' => false , 'message' => 'Can not extract rvsitebuilder installer.'] );
         print_install_log($installerconfig['install_log'] , 'Can not extract rvsitebuilder installer.');
@@ -88,7 +88,7 @@ function getInstallerConfig() {
     return array_merge($defconfig,$userconfig);
 }
 
-function doDownload($type, $url, $sink, $rvlicensecode) {
+function doDownload($type, $url, $sink, $rvlicensecode,$debug_log) {
     $response = [
         'message' => '',
         'success' => false
@@ -116,7 +116,19 @@ function doDownload($type, $url, $sink, $rvlicensecode) {
         'RV-Forword-REMOTE-ADDR' => get_client_ip()
     ];
     
-    $res = $client->request($type, $url, ['headers' => $headers], ['sink' => $sink]);
+    print_debug_log($debug_log,'Header request to server '.json_encode($headers));
+    
+    $res = $client->request(
+                                $type, 
+                                $url, 
+                                [
+                                    'headers'   => $headers,
+                                    'sink'      => $sink
+                                ]
+                            );
+    
+    print_debug_log($debug_log,'Server Response Status '.$res->getStatusCode());
+    print_debug_log($debug_log,'Server Response Header '.json_encode((array) $res->getHeaders()));
     
     if($res->getHeaderLine('RV-DOWNLOAD-RESPONSE') != 'ok') {
         $response['message'] = $res->getHeaderLine('RV-DOWNLOAD-RESPONSE-MESSAGE');
@@ -154,7 +166,7 @@ function get_client_ip() {
     return $ipaddress;
 }
 
-function doExtract($file,$path) {
+function doExtract($file,$path,$debug_log) {
     $response['success'] = false;
     $response['message'] = '';
     try {
@@ -206,7 +218,6 @@ function rv_apache_request_headers() {
                 foreach($rx_matches as $ak_key => $ak_val) {
                     $rx_matches[$ak_key] = ucfirst($ak_val);
                     $arh_key = implode('-', $rx_matches);
-                    $arh_key =  ucfirst(strtolower($arh_key));
                 }
             }
             $arh[$arh_key] = $val;
