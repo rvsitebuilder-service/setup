@@ -78,15 +78,31 @@ die();
 
 /* Function */
 function getInstallerConfig() {
-    //defaultconfig
-    $defconfig = parse_ini_file(dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini',true);
     
-    //overwrite installer config by user
-    $userconfig = [];
-    if(file_exists(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini')) {
-        $userconfig = parse_ini_file(__DIR__.'/../.rvsitebuilderinstallerconfig/config.ini',true);
+    //defaultconfig
+    $defconfig = [];
+    $defconfigpath = dirname(__FILE__).'/../.rvsitebuilderinstallerconfig/root_config.ini';
+    if(file_exists($defconfigpath)) {
+        $defconfig = parse_ini_file($defconfigpath,true);
     }
-    return array_merge($defconfig,$userconfig);
+    
+    //overwrite installer config by root config
+    $rootconfig = [];
+    $rootconfigpath = dirname(__FILE__).'/../.rvsitebuilderinstallerconfig/root_config.ini';
+    if(file_exists($rootconfigpath)) {
+        $rootconfig = parse_ini_file($rootconfigpath,true);
+    }
+    $installerconfig1 = array_merge($defconfig,$rootconfig);
+    
+    //overwrite installer config by user config
+    $userconfig = [];
+    $userconfigpath = dirname(__FILE__).'/../.rvsitebuilderinstallerconfig/config.ini';
+    if(file_exists($userconfigpath)) {
+        $userconfig = parse_ini_file($userconfigpath,true);
+    }
+    $installerconfig2 = array_merge($installerconfig1,$userconfig);
+    
+    return $installerconfig2;
 }
 
 function doDownload($type, $url, $sink, $rvlicensecode,$debug_log) {
