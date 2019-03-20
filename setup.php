@@ -81,7 +81,7 @@ function getInstallerConfig() {
     
     //defaultconfig
     $defconfig = [];
-    $defconfigpath = dirname(__FILE__).'/../.rvsitebuilderinstallerconfig/root_config.ini';
+    $defconfigpath = dirname(__FILE__).'/rvsitebuilderinstallerconfig_dist/config.ini';
     if(file_exists($defconfigpath)) {
         $defconfig = parse_ini_file($defconfigpath,true);
     }
