@@ -2,7 +2,6 @@
   "name": "rvsitebuildersetup",
   "require": {
     "guzzlehttp/guzzle": "^6.3.3",
-    "splitbrain/php-archive": "^1.1",
-    "illuminate/filesystem": "5.8.*"
+    "splitbrain/php-archive": "^1.1"
   }
 }
