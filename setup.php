@@ -26,11 +26,13 @@ if (!extension_loaded('json')) {
 header('Content-type: application/json');
 
 //common validation
+/*
 if(ini_get('allow_url_fopen') != 1){
     echo json_encode( ['status' => false , 'message' => 'Error php.ini, Must set allow_url_fopen=ON'] );
     print_install_log($installerconfig['install_log'] , 'Error php.ini, Must set allow_url_fopen=ON');
     exit;
 }
+*/
 
 //if not file setupapiserver or install.html
 if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
