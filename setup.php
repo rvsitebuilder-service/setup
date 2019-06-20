@@ -38,14 +38,18 @@ if(ini_get('allow_url_fopen') != 1){
 if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__FILE__).'/setupapiserver.php')) {
     //set download real-setup url
     $mirror =  (isset($installerconfig['mirror'])) ? $installerconfig['mirror'] : 'http://files.mirror1.rvsitebuilder.com';
+    $getversionurl = 'https://getversion.rvsitebuilder.com/getversion';
     if($installerconfig['installer']['getversion'] == 'latest') {
         $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install/tier/latest';
+        $getversionurl .= '/rvsitebuilderinstaller/install/tier/latest';
     }
     elseif(preg_match('/[0-9]+\.[0-9]+\.[0-9]+/',$installerconfig['installer']['getversion'])) {
         $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install/version/'.$installerconfig['installer']['getversion'];
+        $getversionurl .= '/rvsitebuilderinstaller/install/version/'.$installerconfig['installer']['getversion'];
     }
     else{
         $downloadurl = $mirror.'/download/rvsitebuilderinstaller/install';
+        $getversionurl .= '/rvsitebuilderinstaller/install';
     }
     print_debug_log($installerconfig['debug_log'],'Download installer url '.$downloadurl);
     //download
@@ -107,7 +111,7 @@ function getInstallerConfig() {
     return $installerconfig2;
 }
 
-function doDownload($type, $url, $sink, $rvlicensecode,$debug_log) {
+function doDownload($type, $url, $sink, $rvlicensecode,$debug_log , $getversionurl) {
     $response = [
         'message' => '',
         'success' => false
@@ -155,6 +159,18 @@ function doDownload($type, $url, $sink, $rvlicensecode,$debug_log) {
         $response['message'] = 'Download Error ,file '.$sink.' not exists';
     } else {
         $response['success'] = true;
+    }
+
+    //sha_512 verify
+    if(isset($getversionurl)){
+        $arr_request = $client->request('GET' , $getversionurl);
+        $verify_arr = json_decode($arr_request->getBody() , true);
+        $downloadurl = $verify_arr['rvsitebuilderinstaller']['sha512'];
+        $file_sha512 = hash_file('sha512' , $sink);
+        if($file_sha512!=$downloadurl){
+            $response['success'] = false;
+            $response['message'] = 'Download error , File validation incorret.';
+        }
     }
     
     return $response;
