@@ -131,7 +131,7 @@ function doDownload($type, $url, $sink, $rvlicensecode,$debug_log , $getversionu
         'Allow-GATracking' => 'true',
         /// RVGlobalsoft Product
         'RV-Product' => 'rvsitebuilder',
-        /// ทำ License-Code ดูตาม function เลย
+        /// ทำ License-Code ดูตาม function เลย 
         'RV-License-Code' => $rvlicensecode,
         /// Browser ของ user
         'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
@@ -165,7 +165,7 @@ function doDownload($type, $url, $sink, $rvlicensecode,$debug_log , $getversionu
     if(isset($getversionurl)){
         $arr_request = $client->request('GET' , $getversionurl);
         $verify_arr = json_decode($arr_request->getBody() , true);
-        $downloadurl = $verify_arr['rvsitebuilderinstaller']['sha512'];
+        $downloadurl = $verify_arr['rvsitebuilderinstaller/install']['sha512'];
         $file_sha512 = hash_file('sha512' , $sink);
         if($file_sha512!=$downloadurl){
             $response['success'] = false;
