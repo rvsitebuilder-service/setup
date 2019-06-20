@@ -53,7 +53,7 @@ if (! file_exists(dirname(__FILE__).'/install.html') || ! file_exists(dirname(__
     }
     print_debug_log($installerconfig['debug_log'],'Download installer url '.$downloadurl);
     //download
-    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz',$rvlicensecode,$installerconfig['debug_log']);
+    $downloadreal = doDownload('GET' , $downloadurl , dirname(__FILE__).'/install.tar.gz',$rvlicensecode,$installerconfig['debug_log'] , $getversionurl);
     if($downloadreal['success'] == false){
         echo json_encode( ['status' => false , 'message' => $downloadreal['message']] );
         print_install_log($installerconfig['install_log'] , $downloadreal['message']);
