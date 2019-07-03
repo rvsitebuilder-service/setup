@@ -178,8 +178,9 @@ function doDownload($type, $url, $sink, $rvlicensecode,$debug_log , $getversionu
 
 function get_current_domain() {
     $domainname = $_SERVER['SERVER_NAME'];
-    #TODO if /^www\./
-    $domainname = str_replace("www.","",$domainname);
+    if (preg_match('/^www\./', $domainname)) {
+        $domainname = str_replace("www.","",$domainname);
+    }
     return $domainname;
 }
 
