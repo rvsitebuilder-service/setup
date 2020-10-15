@@ -17,8 +17,7 @@ $headers = array_change_key_case($headers, CASE_UPPER);
 //set installtype
 $installtype =  'nocp';
 if (isset($headers['INSTALLTYPE']) && isset($headers['INSTALLTYPE']) != '') $installtype = $headers['INSTALLTYPE'];
-if (isset($provisionconfig['provisioning'])) $installtype = 'provision';
-
+$installtype = $provisionconfig['provisioning'] ?? 'provision';
 print_debug_log($installerconfig['debug_log'], 'Install type ' . $installtype);
 $rvlicensecode = $headers['RV-LICENSE-CODE'] ?? '';
 print_debug_log($installerconfig['debug_log'], 'RV License Code ' . $rvlicensecode);
@@ -34,12 +33,10 @@ if (!extension_loaded('json')) {
 //json header
 header('Content-type: application/json');
 
-
 //if not file setupapiserver or install.html
 if (!file_exists(dirname(__FILE__) . '/install.html') || !file_exists(dirname(__FILE__) . '/setupapiserver.php')) {
     //set download real-setup url
     $mirror = $installerconfig['mirror'] ?? 'http://files.mirror1.rvsitebuilder.com';
-
     $getversionurl = 'https://getversion.rvsitebuilder.com/getversion';
     if ($installerconfig['installer']['getversion'] == 'latest') {
         $downloadurl = $mirror . '/download/rvsitebuilderinstaller/install/tier/latest';
@@ -247,7 +244,7 @@ function get_open_basedir_paths(): array
     return $open_basedir_paths;
 }
 
-function doDownload($type, $url, $sink, $rvlicensecode, $debug_log, $getversionurl)
+function doDownload(string $type, string $url, string $sink, $rvlicensecode, $debug_log, string $getversionurl): array
 {
     $response = [
         'message' => '',
@@ -306,7 +303,7 @@ function doDownload($type, $url, $sink, $rvlicensecode, $debug_log, $getversionu
         $file_sha512 = hash_file('sha512', $sink);
         if ($file_sha512 != $downloadurl) {
             $response['success'] = false;
-            $response['message'] = 'Download error , File validation incorret.';
+            $response['message'] = 'Download error , File validation incorrect.';
         }
     }
 
@@ -316,8 +313,6 @@ function doDownload($type, $url, $sink, $rvlicensecode, $debug_log, $getversionu
 function get_client_ip(): string
 {
     $ipaddress = '';
-    $ipaddress = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_FORWARDED'] ?? $_SERVER['HTTP_FORWARDED'] ?? $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
-
     if (isset($_SERVER['HTTP_CLIENT_IP'])) {
         $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
     } else if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
