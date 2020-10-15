@@ -17,7 +17,7 @@ $headers = array_change_key_case($headers, CASE_UPPER);
 //set installtype
 $installtype =  'nocp';
 if (isset($headers['INSTALLTYPE']) && isset($headers['INSTALLTYPE']) != '') $installtype = $headers['INSTALLTYPE'];
-$installtype = $provisionconfig['provisioning'] ?? 'provision';
+if (isset($provisionconfig['provisioning'])) $installtype = 'provision';
 print_debug_log($installerconfig['debug_log'], 'Install type ' . $installtype);
 $rvlicensecode = $headers['RV-LICENSE-CODE'] ?? '';
 print_debug_log($installerconfig['debug_log'], 'RV License Code ' . $rvlicensecode);
