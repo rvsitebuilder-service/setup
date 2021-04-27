@@ -37,7 +37,7 @@ header('Content-type: application/json');
 if (!file_exists(dirname(__FILE__) . '/install.html') || !file_exists(dirname(__FILE__) . '/setupapiserver.php')) {
     //set download real-setup url
     $mirror = $installerconfig['mirror'] ?? 'http://files.mirror1.rvsitebuilder.com';
-    $getversionurl = 'https://getversion.rvsitebuilder.com/getversion';
+    $getversionurl = $installerconfig['version'] . '/getversion' ?? 'https://getversion.rvsitebuilder.com/getversion';
     if ($installerconfig['installer']['getversion'] == 'latest') {
         $downloadurl = $mirror . '/download/rvsitebuilderinstaller/install/tier/latest';
         $getversionurl .= '/rvsitebuilderinstaller/install/tier/latest';
