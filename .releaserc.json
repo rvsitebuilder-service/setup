@@ -1,0 +1,265 @@
+{
+  "branches": [
+    {
+      "name": "main"
+    },
+    {
+      "name": "(hotfix|fix)/**"
+    },
+    {
+      "name": "develop",
+      "prerelease": "beta"
+    },
+    {
+      "name": "+([0-9])?(.{+([0-9]),x})?(.{+([0-9]),x})",
+      "prerelease": "alpha"
+    }
+  ],
+  "repositoryUrl": "https://github.com/rvsitebuilder-service/setup",
+  "debug": true,
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "angular",
+        "releaseRules": [
+          {
+            "type": "Breaking",
+            "release": "major"
+          },
+          {
+            "type": "breaking",
+            "release": "major"
+          },
+          {
+            "type": "Upgrade",
+            "release": "major"
+          },
+          {
+            "type": "upgrade",
+            "release": "major"
+          },
+          {
+            "type": "perf",
+            "release": "major"
+          },
+          {
+            "type": "Perf",
+            "release": "major"
+          },
+          {
+            "type": "Perfect",
+            "release": "major"
+          },
+          {
+            "type": "perfect",
+            "release": "major"
+          },
+          {
+            "type": "BREAKING CHANGE",
+            "release": "major"
+          },
+          {
+            "type": "breaking change",
+            "release": "major"
+          },
+          {
+            "type": "Breaking Change",
+            "release": "major"
+          },
+          {
+            "type": "Update",
+            "release": "minor"
+          },
+          {
+            "type": "update",
+            "release": "minor"
+          },
+          {
+            "type": "Feat",
+            "release": "minor"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "Feature",
+            "release": "minor"
+          },
+          {
+            "type": "feature",
+            "release": "minor"
+          },
+          {
+            "type": "Fix",
+            "release": "patch"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "Fixed",
+            "release": "patch"
+          },
+          {
+            "type": "fixed",
+            "release": "patch"
+          },
+          {
+            "type": "Patch",
+            "release": "patch"
+          },
+          {
+            "type": "patch",
+            "release": "patch"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "Breaking",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "breaking",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "Upgrade",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "upgrade",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "perf",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "Perf",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "Perfect",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "perfect",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "BREAKING CHANGE",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "breaking change",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "Breaking Change",
+              "section": ":rocket: Breaking",
+              "hidden": false
+            },
+            {
+              "type": "Update",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "update",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "Feat",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "feat",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "Feature",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "feature",
+              "section": ":memo: Feature",
+              "hidden": false
+            },
+            {
+              "type": "Fix",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            },
+            {
+              "type": "fix",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            },
+            {
+              "type": "Fixed",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            },
+            {
+              "type": "fixed",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            },
+            {
+              "type": "Patch",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            },
+            {
+              "type": "patch",
+              "section": ":bug: Bug fixed",
+              "hidden": false
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "RVsitebuilderCMS setup changelog"
+      }
+    ],
+    ["@semantic-release/github", {}],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "Update change log (bot) ${nextRelease.version} \n\n${nextRelease.notes}"
+      }
+    ]
+  ],
+  "dryRun": false,
+  "ci": false,
+  "tagFormat": "v${version}"
+}
