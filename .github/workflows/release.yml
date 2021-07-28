@@ -61,5 +61,5 @@ jobs:
       - name: Do something when NOT a new release published
         if: steps.semanticrelease.outputs.new_release_published == 'false'
         run: |
-          echo "Error, cannot create a new release version"
+          echo "Error, cannot create a new release version "
           exit 1
