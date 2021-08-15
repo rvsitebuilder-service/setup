@@ -35,30 +35,17 @@ header('Content-type: application/json');
 
 //if not file setupapiserver or install.html
 if (!file_exists(dirname(__FILE__) . '/install.html') || !file_exists(dirname(__FILE__) . '/setupapiserver.php')) {
-    //set download real-setup url
-    $mirror = $installerconfig['mirror'] ?? 'http://files.mirror1.rvsitebuilder.com';
-    $getversionurl = $installerconfig['version'] . '/getversion' ?? 'https://getversion.rvsitebuilder.com/getversion';
-    if ($installerconfig['installer']['getversion'] == 'latest') {
-        $downloadurl = $mirror . '/download/rvsitebuilderinstaller/install/tier/latest';
-        $getversionurl .= '/rvsitebuilderinstaller/install/tier/latest';
-    } elseif (preg_match('/[0-9]+\.[0-9]+\.[0-9]+/', $installerconfig['installer']['getversion'])) {
-        $downloadurl = $mirror . '/download/rvsitebuilderinstaller/install/version/' . $installerconfig['installer']['getversion'];
-        $getversionurl .= '/rvsitebuilderinstaller/install/version/' . $installerconfig['installer']['getversion'];
-    } else {
-        $downloadurl = $mirror . '/download/rvsitebuilderinstaller/install';
-        $getversionurl .= '/rvsitebuilderinstaller/install';
-    }
-    print_debug_log($installerconfig['debug_log'], 'Download installer url ' . $downloadurl);
+
     //download
-    $downloadreal = doDownload('GET', $downloadurl, dirname(__FILE__) . '/install.tar.gz', $rvlicensecode, $installerconfig['debug_log'], $getversionurl);
-    if ($downloadreal['success'] == false) {
+    $downloadreal = doDownload('GET', $installerconfig, dirname(__FILE__) . '/install.tar.gz', $rvlicensecode);
+    if ($downloadreal['status'] == false) {
         echo json_encode(['status' => false, 'message' => $downloadreal['message']]);
         print_install_log($installerconfig['install_log'], $downloadreal['message']);
         exit;
     }
     //extract
     $extractreal  = doExtract(dirname(__FILE__) . '/install.tar.gz', dirname(__FILE__) . '/', $installerconfig['debug_log']);
-    if ($extractreal['success'] = false) {
+    if ($extractreal['status'] = false) {
         echo json_encode(['status' => false, 'message' => 'Can not extract rvsitebuilder installer.']);
         print_install_log($installerconfig['install_log'], 'Can not extract rvsitebuilder installer.');
         exit;
@@ -244,67 +231,118 @@ function get_open_basedir_paths(): array
     return $open_basedir_paths;
 }
 
-function doDownload(string $type, string $url, string $sink, $rvlicensecode, $debug_log, string $getversionurl): array
+function doDownload(string $regtype,  array $installerconfig, string $sink, $rvlicensecode): array
 {
     $response = [
         'message' => '',
-        'success' => false
+        'status' => false
     ];
 
     $client = new Client([
         'curl'            => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
-        'allow_redirects' => false,
+        'allow_redirects' => true,
         'cookies'         => true,
         'verify'          => false
     ]);
 
+    // 1. get token
+    $mirror = $installerconfig['mirror'] ?? 'https://files.mirror1.rvsitebuilder.com';
     $headers = [
-        /// Domain user
-        'RV-Referer' => get_current_domain(),
-        /// บอกให้ทำ GATracking
-        'Allow-GATracking' => 'true',
-        /// RVGlobalsoft Product
-        'RV-Product' => 'rvsitebuilder',
-        /// ทำ License-Code ดูตาม function เลย
-        'RV-License-Code' => $rvlicensecode,
-        /// Browser ของ user
-        'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
-        /// ส่ง IP ของ user ให้ด้วย เพราะที่ server เราจะเห็นแค่ IP ของ server ไม่ใช่ IP ของผู้ใช้งานจริงๆ
-        'RV-Forword-REMOTE-ADDR' => get_client_ip()
+        'RV-Referer' => get_current_domain(), /// Domain user
+        'Allow-GATracking' => 'true', /// บอกให้ทำ GATracking
+        'RV-Product' => 'rvsitebuilder', /// RVGlobalsoft Product
+        'RV-License-Code' => $rvlicensecode, /// ทำ License-Code ดูตาม function เลย
+        'RV-Forword-REMOTE-ADDR' => get_server_ip() /// ส่ง IP ของ user ให้ด้วย เพราะที่ server เราจะเห็นแค่ IP ของ server ไม่ใช่ IP ของผู้ใช้งานจริงๆ
     ];
-
-    print_debug_log($debug_log, 'Header request to server ' . json_encode($headers));
-
+    print_debug_log($installerconfig['debug_log'], 'Header request to server ' . json_encode($headers));
     $res = $client->request(
-        $type,
-        $url,
+        $regtype,
+        $mirror . '/download/getdownloadtoken',
+        [
+            'headers'   => $headers,
+        ]
+    );
+    print_debug_log($installerconfig['debug_log'], 'Server Response Status ' . $res->getStatusCode());
+    print_debug_log($installerconfig['debug_log'], 'Server Response Header ' . json_encode((array) $res->getHeaders()));
+    if ($res->getHeaderLine('RV-DOWNLOAD-RESPONSE') == 'failed') {
+        $response['message'] = json_decode($res->getBody(), true)['message'];
+        return $response;
+    }
+    $strres = explode("//", json_decode($res->getBody(), true)['token']);
+    $encryptedMessage = $strres[1];
+    $iv            = hex2bin($strres[0]);
+    $key           = 'arnut@netway.co.th';
+    $decryptedToken = openssl_decrypt($encryptedMessage, "AES-256-CBC", $key, 0, $iv);
+
+    // 2. get all release
+    $headers = [
+        'Authorization' => "token $decryptedToken",
+        "Accept" => 'application/vnd.github.v3+json'
+    ];
+    $res = $client->request(
+        $regtype,
+        'https://api.github.com/repos/rvsitebuilder-service/real-setup/releases?per_page=100',
+        [
+            'headers'   => $headers,
+        ]
+    );
+    print_debug_log($installerconfig['debug_log'], 'Server Response Status ' . $res->getStatusCode());
+    if ($res->getStatusCode() != 200) {
+        $response['message'] = 'Not found releases information for real-setup';
+        return $response;
+    }
+    $allRelease = json_decode($res->getBody(), true);
+
+    // 3. find version match
+    # latest -download the latest release version
+    # stable -download stable version that latest release doesn't look alpha , beta
+    # beta,alpha -download the latest released version and the name contains the words "alpha" or "beta"
+    # version specific (vx.x.x or vx.x.x-beta.xxx) -download according to the specified version
+    $versionDownload = '';
+    if ($installerconfig['installer']['getversion'] == 'latest') {
+        $versionDownload = $allRelease[0]['tag_name'];
+    }
+    foreach ($allRelease as $release) {
+        if ($installerconfig['installer']['getversion'] == 'stable' && preg_match('/v[0-9]+\.[0-9]+\.[0-9]+$/', $release['tag_name'])) {
+            $versionDownload = $release['tag_name'];
+            break;
+        } elseif ($installerconfig['installer']['getversion'] == 'alpha' && preg_match('/v[0-9]+\.[0-9]+\.[0-9]+\-alpha\.[0-9]+$/', $release['tag_name'])) {
+            $versionDownload = $release['tag_name'];
+            break;
+        } elseif ($installerconfig['installer']['getversion'] == 'beta' && preg_match('/v[0-9]+\.[0-9]+\.[0-9]+\-beta\.[0-9]+$/', $release['tag_name'])) {
+            $versionDownload = $release['tag_name'];
+            break;
+        } elseif ((preg_match('/v?[0-9]+\.[0-9]+\.[0-9]+$/', $installerconfig['installer']['getversion']) || preg_match('/v?[0-9]+\.[0-9]+\.[0-9]+\-(beta|alpha)\.[0-9]+$/', $installerconfig['installer']['getversion'])) && preg_match('/v?' . $installerconfig['installer']['getversion'] . '$/', $release['tag_name'])) {
+            $versionDownload = $release['tag_name'];
+            break;
+        }
+    }
+    print_debug_log($installerconfig['debug_log'], 'Download installer version ' . $versionDownload);
+    if ($versionDownload == '') {
+        $response['message'] = 'Not found version ' . $installerconfig['installer']['getversion'] . ' for real-setup';
+        return $response;
+    }
+
+    // 4. download from release
+    $headers = [
+        'Authorization' => "token $decryptedToken",
+        "Accept" => 'application/vnd.github.v3+json'
+    ];
+    $res = $client->request(
+        $regtype,
+        'https://api.github.com/repos/rvsitebuilder-service/real-setup/tarball/' . $versionDownload,
         [
             'headers'   => $headers,
             'sink'      => $sink
         ]
     );
-
-    print_debug_log($debug_log, 'Server Response Status ' . $res->getStatusCode());
-    print_debug_log($debug_log, 'Server Response Header ' . json_encode((array) $res->getHeaders()));
-
-    if ($res->getHeaderLine('RV-DOWNLOAD-RESPONSE') != 'ok') {
-        $response['message'] = $res->getHeaderLine('RV-DOWNLOAD-RESPONSE-MESSAGE');
+    print_debug_log($installerconfig['debug_log'], 'Server Response Status ' . $res->getStatusCode());
+    if ($res->getStatusCode() != 200) {
+        $response['message'] = 'Cannot download from https://api.github.com/repos/rvsitebuilder-service/real-setup/tarball/' . $versionDownload;
     } else if (!file_exists($sink)) {
         $response['message'] = 'Download Error ,file ' . $sink . ' not exists';
     } else {
-        $response['success'] = true;
-    }
-
-    //sha_512 verify
-    if (isset($getversionurl)) {
-        $arr_request = $client->request('GET', $getversionurl);
-        $verify_arr = json_decode($arr_request->getBody(), true);
-        $downloadurl = $verify_arr['rvsitebuilderinstaller/install']['sha512'];
-        $file_sha512 = hash_file('sha512', $sink);
-        if ($file_sha512 != $downloadurl) {
-            $response['success'] = false;
-            $response['message'] = 'Download error , File validation incorrect.';
-        }
+        $response['status'] = true;
     }
 
     return $response;
@@ -331,15 +369,23 @@ function get_client_ip(): string
     return $ipaddress;
 }
 
-function doExtract($file, $path, $debug_log)
+function get_server_ip(): string
 {
-    $response['success'] = false;
+    return $_SERVER['REMOTE_ADDR'];
+}
+
+function doExtract(string $file, string $path, bool $debug_log): array
+{
+    $response['status'] = false;
     $response['message'] = '';
     try {
         $tar = new Tar();
         $tar->open($file);
         $tar->extract($path);
-        $response['success'] = true;
+        foreach (glob(dirname(__FILE__) . '/rvsitebuilder-service-real-setup-*', GLOB_ONLYDIR) as $dirname) {
+            echo "$dirname size " . filesize($dirname) . "\n";
+        }
+        $response['status'] = true;
         return $response;
     } catch (Exception $e) {
         $response['message'] = $e->getMessage();
@@ -347,7 +393,7 @@ function doExtract($file, $path, $debug_log)
     }
 }
 
-function print_debug_log($debug, $msg = '')
+function print_debug_log(bool $debug, string $msg = ''): bool
 {
     if ($debug == true) {
         file_put_contents(
@@ -359,7 +405,7 @@ function print_debug_log($debug, $msg = '')
     return true;
 }
 
-function print_install_log($installlog, $msg = '')
+function print_install_log(bool $installlog, $msg = ''): bool
 {
     if ($installlog == true) {
         file_put_contents(
