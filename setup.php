@@ -4,6 +4,8 @@ require 'vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use splitbrain\PHPArchive\Tar;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 //get installer config
 $installerconfig = getInstallerConfig();
@@ -382,8 +384,10 @@ function doExtract(string $file, string $path, bool $debug_log): array
         $tar = new Tar();
         $tar->open($file);
         $tar->extract($path);
+        $files =  new Filesystem();
         foreach (glob(dirname(__FILE__) . '/rvsitebuilder-service-real-setup-*', GLOB_ONLYDIR) as $dirname) {
-            echo "$dirname size " . filesize($dirname) . "\n";
+            $copy = $files->mirror($dirname, dirname(__FILE__), null, ['override' => true]);
+            $files->remove($dirname);
         }
         $response['status'] = true;
         return $response;
