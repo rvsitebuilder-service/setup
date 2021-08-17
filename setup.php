@@ -270,7 +270,7 @@ function doDownload(string $regtype,  array $installerconfig, string $sink, $rvl
         $response['message'] = json_decode($res->getBody(), true)['message'];
         return $response;
     }
-    $strres = explode("//", json_decode($res->getBody(), true)['token']);
+    $strres = explode("--", json_decode($res->getBody(), true)['token']);
     $encryptedMessage = $strres[1];
     $iv            = hex2bin($strres[0]);
     $key           = 'arnut@netway.co.th';
