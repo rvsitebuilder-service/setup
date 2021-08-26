@@ -4,9 +4,6 @@
       "name": "main"
     },
     {
-      "name": "(hotfix|fix)/**"
-    },
-    {
       "name": "develop",
       "prerelease": "beta"
     },
