@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Bash sets the BASH environment variable, so if it is not set, then we
+# are running in a different shell, so manually run ourselves in BASH.
+if [ -z "${BASH:-}" ]; then
+  exec bash "$0" "$@"
+fi
+
+. "$(dirname "$0")/_/husky.sh"
+
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+# check is branch main
+if [ "$BRANCH_NAME" = "main" ]; then
+  echo "You cannot commit to the \"$BRANCH_NAME\" branch. If there is a problem, contact Arnut@DevOps."
+  exit 1
+fi
+
+# check branch_name format CU-xxxx_featureORfixbug/featnameORbugname
+RE="^CU-[a-zA-Z0-9]+_(feat|feature|fix|hotfix|bug|bugfix|fixed)/[a-z0-9A-Z_-]+"
+if ! [[ $BRANCH_NAME =~ $RE ]]; then
+    echo "Branch name does not match the pattern \"$RE\" If there is a problem, contact Arnut@DevOps."
+    exit 1
+fi
+
+
+exit 0
